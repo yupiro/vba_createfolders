@@ -1,0 +1,58 @@
+Option Explicit
+
+Sub Createfolders()
+
+    Dim ws1 As Worksheet
+    Set ws1 = Worksheets("フォルダ作成")
+    
+    
+    Dim fs As FileSystemObject
+    Set fs = New Scripting.FileSystemObject
+    
+    Dim folderpath As String
+    
+    folderpath = ws1.Range("B2").Value
+    
+    'セルB2でしてするフォルダがあるかチェックする
+    If fs.FolderExists(folderspec:=folderpath) = False Then
+        MsgBox "セルB2に「作成先のフォルダURL」を入力して下さい"
+        Exit Sub
+    End If
+    
+    '最終行の取得
+    Dim cmax As Long
+    cmax = ws1.Range("B65536").End(xlUp).Row
+    
+    'B列の入力チェックし、空欄があればメッセージ出力
+    Dim i As Long
+    For i = 5 To cmax
+        If ws1.Range("B" & i).Value = "" Then
+            MsgBox "B列のフォルダ名を入力してください"
+            Exit Sub
+        End If
+    Next
+    
+    '親フォルダ作成
+    Dim newfolderpath As String
+    For i = 5 To cmax
+        newfolderpath = folderpath & "\" & ws1.Range("B" & i).Value
+        
+            If fs.FolderExists(folderspec:=newfolderpath) = False Then
+               fs.CreateFolder newfolderpath
+            End If
+    Next
+    
+    '子フォルダ作成
+    'folderpath = ws1.Range("B2").Value
+    'newfolderpath = folderpath & "\" & ws1.Range("B" & i).Value
+    
+    For i = 5 To cmax
+        newfolderpath = folderpath & "\" & ws1.Range("B" & i).Value & "\" & ws1.Range("C" & i).Value
+        fs.CreateFolder newfolderpath
+    Next
+    
+    
+    'オブジェクト解放
+    Set fs = Nothing
+    
+End Sub
